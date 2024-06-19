@@ -1,32 +1,68 @@
-{% extends 'base.html' %}
-
-{% block title %}Dashboard{% endblock %}
-
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center">Dashboard</h3>
-                </div>
-                <div class="card-body">
-                    <h4>Welcome, {{ user.username }}!</h4>
-                    <h5>Recent Quiz Scores</h5>
-                    <ul class="list-group">
-                        {% for attempt in recent_quiz_attempts %}
-                            <li class="list-group-item">
-                                <p>Score: {{ attempt.score }} / 30</p>
-                                <p>Date Attempted: {{ attempt.date_attempted }}</p>
-                            </li>
-                        {% empty %}
-                            <li class="list-group-item">No recent quiz attempts.</li>
-                        {% endfor %}
-                    </ul>
-                    <a href="{% url 'assessments' %}" class="btn btn-primary mt-3">Go to Assessments</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% extends 'base.html' %} 
+ 
+{% block title %}Dashboard{% endblock %} 
+ 
+{% block content %} 
+<div class="container mt-5"> 
+    <div class="row justify-content-center"> 
+        <div class="col-md-8"> 
+            <div class="card"> 
+                <div class="card-header"> 
+                    <h3 class="text-center">Dashboard</h3> 
+                </div> 
+                <div class="card-body"> 
+                    <h4>Welcome, {{ user.username }}!</h4> 
+                    <h5>Recent Quiz Scores</h5> 
+                    {% comment %} <ul class="list-group"> 
+                        {% for attempt in recent_quiz_attempts %} 
+                            <li class="list-group-item"> 
+                                <p>Score: {{ attempt.score }} / 30</p> 
+                                <p>Date Attempted: {{ attempt.date_attempted }}</p> 
+                            </li> 
+                        {% empty %} 
+                            <li class="list-group-item">No recent quiz attempts.</li> 
+                        {% endfor %} 
+                    </ul> {% endcomment %} 
+                    <!-- Canvas for Chart.js --> 
+                    <canvas id="quizScoresChart" width="400" height="200"></canvas> 
+ 
+                    <a href="{% url 'assessments' %}" class="btn btn-primary mt-3">Go to Assessments</a> 
+                </div> 
+            </div> 
+        </div> 
+    </div> 
+</div> 
+ 
+<!-- Script for Chart.js --> 
+<script> 
+    document.addEventListener('DOMContentLoaded', function() { 
+        var ctx = document.getElementById('quizScoresChart').getContext('2d'); 
+        var scores = {{ quiz_scores|safe }}; 
+        var dates = {{ quiz_dates|safe }}; 
+ 
+        var myChart = new Chart(ctx, { 
+            type: 'bar', 
+            data: { 
+                labels: dates, 
+                datasets: [{ 
+                    label: 'Quiz Scores', 
+                    data: scores, 
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)', 
+                    borderColor: 'rgba(54, 162, 235, 1)', 
+                    borderWidth: 1 
+                }] 
+            }, 
+            options: { 
+                scales: { 
+                    y: { 
+                        beginAtZero: true 
+                    } 
+                } 
+            } 
+        }); 
+    }); 
+</script> 
+<!-- Include Chart.js from CDN --> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+ 
 {% endblock %}

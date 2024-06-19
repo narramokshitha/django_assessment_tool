@@ -15,4 +15,5 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'), 
     path('logout/', views.logout_view, name='logout'), 
     path('refresh-captcha/', views.refresh_captcha, name='refresh_captcha'),
+    path('survey-thank-you/', views.survey_thank_you, name='survey-thank-you'),
 ]

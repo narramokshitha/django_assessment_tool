@@ -7,8 +7,8 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
                     <h3 class="text-center">Login</h3>
                 </div>
                 <div class="card-body">
@@ -25,24 +25,25 @@
                         <div class="form-group">
                             <div id="captcha-container">
                                 <div class="input-group">
-                                <label for="captcha">CAPTCHA:</label>&nbsp; 
-                                    <div id="captcha-display">
-                                        <p>{{ request.session.captcha }}</p> <!-- Display CAPTCHA to user -->
-                                    </div>&nbsp; &nbsp; 
-                                    {% comment %} <div class="input-group-append"> {% endcomment %}
-                                        <button type="button" class="btn btn-secondary" id="refresh-captcha">
+                                    <div id="captcha-display" class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-0">
+                                            <strong>{{ request.session.captcha }}</strong>
+                                        </span>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" id="refresh-captcha">
                                             <i class="fas fa-sync-alt"></i> Refresh
                                         </button>
-                                    {% comment %} </div> {% endcomment %}
+                                    </div>
                                 </div>
-                                <div id="captcha-input">
+                                <div id="captcha-input" class="mt-2">
                                     <label for="captcha">Enter the CAPTCHA below:</label>
                                     <input type="text" class="form-control" id="captcha" name="captcha" required>
                                     <small class="form-text text-muted">Please enter the characters exactly as shown above.</small>
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                        <button type="submit" class="btn btn-primary btn-block mt-3">Login</button>
                     </form>
                 </div>
             </div>
@@ -62,7 +63,7 @@
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         // Update the CAPTCHA value displayed on the page
-                        captchaDisplay.innerHTML = '<p>' + xhr.responseText + '</p>';
+                        captchaDisplay.innerHTML = '<span class="input-group-text bg-light border-0"><strong>' + xhr.responseText + '</strong></span>';
                         var captchaField = document.getElementById('captcha');
                         captchaField.value = '';  // Clear the current CAPTCHA value
                     } else {

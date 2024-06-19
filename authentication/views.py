@@ -4,14 +4,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required 
 from .forms import SignupForm 
-from .models import Question, Option , QuizAttempt, CodeSnippet
+from .models import Question, Option , QuizAttempt, CodeSnippet, SurveyResponse
 import random 
-from .forms import LoginForm  # Import the LoginForm you just defined
+from .forms import LoginForm , SurveyForm # Import the LoginForm you just defined
 from .utils import generate_random_string
 from django.http import JsonResponse
 from .forms import SyntaxIdentificationForm
 from django.http import HttpResponse
- 
+
  
 def home(request): 
     return render(request, 'registration/home.html') 
@@ -70,18 +70,57 @@ def logout_view(request):
     messages.success(request, 'You have successfully logged out.') 
     return redirect('login') 
 
-@login_required
-def dashboard_view(request):
-    user = request.user
-    # Fetch recent 3 quiz attempts for the current user
-    recent_quiz_attempts = QuizAttempt.objects.filter(user=user).order_by('-date_attempted')[:3]
+@login_required  
+def surveys_view(request): 
+    if request.method == 'POST': 
+        form = SurveyForm(request.POST) 
+        if form.is_valid(): 
+            # Extract cleaned data from the form 
+            overall_experience = form.cleaned_data['overall_experience'] 
+            technical_issues = form.cleaned_data['technical_issues'] 
+            satisfaction = form.cleaned_data['satisfaction'] 
+            challenges = form.cleaned_data['challenges'] 
+            assessment_quality = form.cleaned_data['assessment_quality'] 
+            website_changes = form.cleaned_data['website_changes'] 
+ 
+            # Save survey response to the database 
+            SurveyResponse.objects.create( 
+                overall_experience=overall_experience, 
+                technical_issues=technical_issues, 
+                overall_satisfaction=satisfaction, 
+                challenges_faced=challenges, 
+                assessment_quality=assessment_quality, 
+                changes_request=website_changes 
+            ) 
+ 
+            # Redirect after successful submission (optional) 
+            return redirect('survey-thank-you')  # Replace with your URL name 
+ 
+    else: 
+        form = SurveyForm()  # Create an empty form for GET requests 
+ 
+    context = { 
+        'form': form 
+    } 
+    return render(request, 'surveys.html', context) 
+ 
+@login_required 
+def survey_thank_you(request): 
+    return render(request, 'thankyou.html')
 
-    context = {
-        'user': user,
-        'recent_quiz_attempts': recent_quiz_attempts,  # Pass recent quiz attempts to template
-        # Add more context data as needed for your dashboard
-    }
-    return render(request, 'dashboard.html', context)
+@login_required 
+def dashboard_view(request): 
+    recent_quiz_attempts = QuizAttempt.objects.filter(user=request.user).order_by('-date_attempted')[:5] 
+ 
+    # Prepare data for chart.js 
+    quiz_scores = [attempt.score for attempt in recent_quiz_attempts] 
+    quiz_dates = [attempt.date_attempted.strftime('%Y-%m-%d') for attempt in recent_quiz_attempts] 
+ 
+    return render(request, 'dashboard.html', { 
+        'recent_quiz_attempts': recent_quiz_attempts, 
+        'quiz_scores': quiz_scores, 
+        'quiz_dates': quiz_dates, 
+    })
 
 @login_required 
 def assessments_view(request): 
@@ -156,10 +195,6 @@ def review_quiz(request):
         return redirect('timed_quiz')
 
 
-@login_required 
-def surveys_view(request): 
-    # Implement your surveys logic here 
-    return render(request, 'surveys.html') 
 @login_required
 def coding_syntax_identification_view(request):
     # Get a random code snippet

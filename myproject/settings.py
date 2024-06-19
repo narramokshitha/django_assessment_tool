@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentication',
-
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'djangobe',
+        'NAME': 'djangoo',
         'USER': 'root',
-        'PASSWORD': 'Sree@0206',
+        'PASSWORD': 'Dusky321#4545',
         'HOST': 'localhost',  # or your database host
         'PORT': '3306',  # default MySQL port
     }
