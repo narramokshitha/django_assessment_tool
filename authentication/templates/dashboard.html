@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Dashboard</h3>
+                </div>
+                <div class="card-body">
+                    <h4>Welcome, {{ user.username }}!</h4>
+                    <h5>Recent Quiz Scores</h5>
+                    <ul class="list-group">
+                        {% for attempt in recent_quiz_attempts %}
+                            <li class="list-group-item">
+                                <p>Score: {{ attempt.score }} / 30</p>
+                                <p>Date Attempted: {{ attempt.date_attempted }}</p>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">No recent quiz attempts.</li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{% url 'assessments' %}" class="btn btn-primary mt-3">Go to Assessments</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

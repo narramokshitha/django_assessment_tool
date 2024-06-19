@@ -1,0 +1,52 @@
+<!-- templates/assessments.html -->
+{% extends 'base.html' %}
+
+{% block title %}Assessments{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card-deck">
+                <!-- Timed Quiz Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="text-center">Timed Quiz</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Attempt a timed quiz with a set duration of 50 seconds and a series of three questions to test your knowledge under pressure.</p>
+                        <a href="{% url 'timed_quiz' %}" class="btn btn-primary btn-block">Attempt</a>
+                    </div>
+                </div>
+
+                <!-- Surveys Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="text-center">Surveys</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Participate in surveys to provide your feedback and opinions on various topics. This will help us all progress in improvements.</p>
+                        <a href="{% url 'surveys' %}" class="btn btn-primary btn-block">Attempt</a>
+                    </div>
+                </div>
+
+                <!-- Coding Syntax Identification Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="text-center">Identify Language</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Identify and correct coding syntax errors in given code snippets to test your programming skills.</p>
+                        <a href="{% url 'coding_syntax_identification' %}" class="btn btn-primary btn-block">Attempt</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-end mt-3">
+        <div class="col-md-4">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-block">View Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
