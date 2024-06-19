@@ -1,0 +1,102 @@
+{% extends 'base.html' %} 
+ 
+{% block title %}Timed Quiz{% endblock %} 
+ 
+{% block content %} 
+<div class="container mt-5"> 
+    <div class="row justify-content-center"> 
+        <div class="col-md-8"> 
+            <div class="card"> 
+                <div class="card-header"> 
+                    <h3 class="text-center">Timed Quiz</h3> 
+                    <!-- Add a close (cross) icon here --> 
+                    <button class="btn btn-link float-right" onclick="exitQuiz()" style="font-size: 1.5rem; color: red; text-decoration: none;">&times;</button> 
+                </div> 
+                <div class="card-body"> 
+                    <form id="quizForm" method="post" action="{% url 'submit_quiz' %}"> 
+                        {% csrf_token %} 
+                        <div id="quiz"> 
+                            {% for question in questions %} 
+                                <div class="question" id="question{{ forloop.counter0 }}" style="display: none;"> 
+                                    <p>{{ question.text }}</p> 
+                                    {% for option in question.options.all %} 
+                                        <div> 
+                                            <input type="radio" id="option{{ option.id }}" name="question{{ question.id }}" value="{{ option.id }}"> 
+                                            <label for="option{{ option.id }}">{{ option.text }}</label> 
+                                        </div> 
+                                    {% endfor %} 
+                                </div> 
+                            {% endfor %} 
+                        </div> 
+                        <div id="timer"> 
+                            <p>Time left: <span id="countdown">50</span> seconds</p> 
+                        </div> 
+                        <div class="navigation mt-3"> 
+                            <button type="button" id="prevBtn" class="btn btn-secondary" onclick="showPrevQuestion()" style="display: none;">Previous</button> 
+                            <button type="button" id="nextBtn" class="btn btn-primary" onclick="showNextQuestion()">Next</button> 
+                            <button type="button" id="clearBtn" class="btn btn-warning" onclick="clearChoice()">Clear My Choice</button> 
+                            <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">Submit Quiz</button> 
+                        </div> 
+                    </form> 
+                </div> 
+            </div> 
+        </div> 
+    </div> 
+</div> 
+ 
+<script> 
+    // JavaScript for countdown timer 
+    var timeLeft = 50; // Time in seconds 
+    var timer = setInterval(function() { 
+        document.getElementById('countdown').innerText = timeLeft; 
+        timeLeft -= 1; 
+        if (timeLeft < 0) { 
+            clearInterval(timer); 
+            alert('Time is up!'); 
+            document.getElementById('quizForm').submit(); // Submit the form automatically when time is up 
+        } 
+    }, 1000); 
+ 
+    // JavaScript for navigating through questions 
+    var currentQuestionIndex = 0; 
+    var questions = document.querySelectorAll('.question'); 
+ 
+    function showQuestion(index) { 
+        questions.forEach((question, i) => { 
+            question.style.display = (i === index) ? 'block' : 'none'; 
+        }); 
+        document.getElementById('prevBtn').style.display = (index === 0) ? 'none' : 'inline-block'; 
+        document.getElementById('nextBtn').style.display = (index === questions.length - 1) ? 'none' : 'inline-block'; 
+        document.getElementById('submitBtn').style.display = (index === questions.length - 1) ? 'inline-block' : 'none'; 
+    } 
+ 
+    function showPrevQuestion() { 
+        if (currentQuestionIndex > 0) { 
+            currentQuestionIndex--; 
+            showQuestion(currentQuestionIndex); 
+        } 
+    } 
+ 
+    function showNextQuestion() { 
+        if (currentQuestionIndex < questions.length - 1) { 
+            currentQuestionIndex++; 
+            showQuestion(currentQuestionIndex); 
+        } 
+    } 
+ 
+    function clearChoice() {
+        var inputs = questions[currentQuestionIndex].querySelectorAll('input[type="radio"]'); 
+        inputs.forEach(input => input.checked = false); 
+    } 
+ 
+    // JavaScript for exiting the quiz 
+    function exitQuiz() { 
+        if (confirm('Are you sure you want to exit the quiz? Your progress will not be saved.')) { 
+            window.location.href = "{% url 'assessments' %}"; 
+        } 
+    } 
+ 
+    // Initialize by showing the first question 
+    showQuestion(currentQuestionIndex); 
+</script> 
+{% endblock %}
