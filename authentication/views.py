@@ -1,16 +1,17 @@
 # views.py 
 from django.shortcuts import render, redirect 
 from django.contrib.auth import authenticate, login, logout 
-from django.contrib import messages 
+from django.contrib import messages
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required 
 from .forms import SignupForm 
 from .models import Question, Option , QuizAttempt, CodeSnippet
 import random 
-from .forms import LoginForm  # Import the LoginForm you just defined
+from .forms import LoginForm, SurveyForm  # Import the LoginForm you just defined
 from .utils import generate_random_string
 from django.http import JsonResponse
 from .forms import SyntaxIdentificationForm
-from django.http import HttpResponse
+from .models import SurveyResponse
  
  
 def home(request): 
@@ -72,16 +73,15 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
-    user = request.user
-    # Fetch recent 3 quiz attempts for the current user
-    recent_quiz_attempts = QuizAttempt.objects.filter(user=user).order_by('-date_attempted')[:3]
-
-    context = {
-        'user': user,
-        'recent_quiz_attempts': recent_quiz_attempts,  # Pass recent quiz attempts to template
-        # Add more context data as needed for your dashboard
-    }
-    return render(request, 'dashboard.html', context)
+    recent_quiz_attempts = QuizAttempt.objects.filter(user=request.user).order_by('-date_attempted')[:5]
+    # Prepare data for chart.js
+    quiz_scores = [attempt.score for attempt in recent_quiz_attempts]
+    quiz_dates = [attempt.date_attempted.strftime('%Y-%m-%d') for attempt in recent_quiz_attempts]
+    return render(request, 'dashboard.html', {
+        'recent_quiz_attempts': recent_quiz_attempts,
+        'quiz_scores': quiz_scores,
+        'quiz_dates': quiz_dates,
+    })
 
 @login_required 
 def assessments_view(request): 
@@ -133,7 +133,9 @@ def review_quiz(request):
         questions = Question.objects.filter(id__in=question_ids)
         review_data = []
         
-        for question in questions:
+        # Maintain the order of questions
+        for question_id in question_ids:
+            question = questions.get(id=question_id)
             correct_option = question.options.get(is_correct=True)
             user_selected_option_id = user_answers.get(f'question{question.id}')
             user_selected_option = None
@@ -157,16 +159,52 @@ def review_quiz(request):
 
 
 @login_required 
-def surveys_view(request): 
-    # Implement your surveys logic here 
-    return render(request, 'surveys.html') 
+def surveys_view(request):
+    if request.method == 'POST':
+        form = SurveyForm(request.POST)
+        if form.is_valid():
+            # Extract cleaned data from the form
+            overall_experience = form.cleaned_data['overall_experience']
+            technical_issues = form.cleaned_data['technical_issues']
+            satisfaction = form.cleaned_data['satisfaction']
+            challenges = form.cleaned_data['challenges']
+            assessment_quality = form.cleaned_data['assessment_quality']
+            website_changes = form.cleaned_data['website_changes']
+
+            # Save survey response to the database
+            SurveyResponse.objects.create(
+                overall_experience=overall_experience,
+                technical_issues=technical_issues,
+                overall_satisfaction=satisfaction,
+                challenges_faced=challenges,
+                assessment_quality=assessment_quality,
+                changes_request=website_changes
+            )
+
+            # Redirect after successful submission (optional)
+            return redirect('survey-thank-you')  # Replace with your URL name
+
+    else:
+        form = SurveyForm()  # Create an empty form for GET requests
+
+    context = {
+        'form': form
+    }
+    return render(request, 'surveys.html', context)
+
+@login_required
+def survey_thank_you(request):
+    return render(request, 'thankyou.html')
+
 @login_required
 def coding_syntax_identification_view(request):
-    # Get a random code snippet
     if 'code_snippet_id' not in request.session:
         # Select a random code snippet from the database
         code_snippet = random.choice(CodeSnippet.objects.all())
         request.session['code_snippet_id'] = code_snippet.id
+        request.session['start_time'] = timezone.now().timestamp()
+        request.session['correct_guesses'] = 0
+        request.session['wrong_guesses'] = 0
     else:
         code_snippet = CodeSnippet.objects.get(id=request.session['code_snippet_id'])
 
@@ -176,14 +214,15 @@ def coding_syntax_identification_view(request):
             guess = form.cleaned_data['answer']
             if guess.lower() == code_snippet.language.lower():
                 # Correct guess
+                request.session['correct_guesses'] += 1
                 messages.success(request, "Correct! Here's a new snippet.")
                 # Delete the current session key to force a new snippet
                 del request.session['code_snippet_id']
-                return redirect('coding_syntax_identification')
             else:
                 # Incorrect guess
+                request.session['wrong_guesses'] += 1
                 messages.error(request, "Incorrect, try again.")
-                return redirect('coding_syntax_identification')
+            return redirect('coding_syntax_identification')
     else:
         form = SyntaxIdentificationForm()
 
@@ -192,3 +231,15 @@ def coding_syntax_identification_view(request):
         'form': form
     }
     return render(request, 'coding_syntax_identification.html', context)
+
+
+@login_required
+def dash_view(request):
+    correct_guesses = request.session.get('correct_guesses', 0)
+    wrong_guesses = request.session.get('wrong_guesses', 0)
+
+    context = {
+        'correct_guesses': correct_guesses,
+        'wrong_guesses': wrong_guesses,
+    }
+    return render(request, 'dash.html', context)

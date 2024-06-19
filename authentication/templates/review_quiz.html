@@ -11,17 +11,28 @@
                     <h3 class="text-center">Review Your Answers</h3>
                 </div>
                 <div class="card-body">
-                    <h4>Answers Review</h4>
-                    <ul>
-                        {% for data in review_data %}
-                            <li>
-                                <strong>Question:</strong> {{ data.question }}<br>
-                                <strong>Your Answer:</strong> {{ data.user_answer }}<br>
-                                <strong>Correct Answer:</strong> {{ data.correct_answer }}
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    {% for data in review_data %}
+                        <div class="mb-4">
+                            <h4>Question:</h4>
+                            <p>{{ data.question }}</p>
+                            {% if data.user_answer == data.correct_answer %}
+                                <div class="alert alert-success" role="alert">
+                                    <strong>Your Answer:</strong> {{ data.user_answer }}
+                                    <span class="badge badge-success">&check;</span>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger" role="alert">
+                                    <strong>Your Answer:</strong> {{ data.user_answer }}
+                                    <span class="badge badge-danger">&cross;</span>
+                                    <br>
+                                    <strong>Correct Answer:</strong> <span style="color: green;">{{ data.correct_answer }}</span>
+                                    <span class="badge badge-success">&check;</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                     <a href="{% url 'timed_quiz' %}" class="btn btn-primary mt-3">Retake Quiz</a>
+                    <a href="{% url 'assessments' %}" class="btn btn-primary mt-3">Back</a>
                 </div>
             </div>
         </div>

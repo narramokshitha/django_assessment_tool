@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Survey{% endblock %}
+
+{% block content %}
+{% load widget_tweaks %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Survey</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label>{{ field.label_tag }}</label>
+                                {% if field|widget_type == "radioselect" %}
+                                    <div class="radio-inline-container">
+                                        {% for subfield in field %}
+                                            <label class="radio-inline">{{ subfield.tag }} {{ subfield.choice_label }}</label>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.radio-inline-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+.radio-inline {
+    margin-right: 10px;
+}
+</style>
+{% endblock %}

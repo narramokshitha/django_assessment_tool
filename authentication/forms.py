@@ -23,3 +23,35 @@ class LoginForm(forms.Form):
 
 class SyntaxIdentificationForm(forms.Form):
     answer = forms.CharField(label='Your Guess:', max_length=100)
+
+
+class SurveyForm(forms.Form):
+    rating_scale_choices = [(i, str(i)) for i in range(1, 11)]
+
+    overall_experience = forms.ChoiceField(
+        choices=rating_scale_choices,
+        widget=forms.RadioSelect,
+        label="On a scale of 1-10, how would you rate your overall experience with our website?"
+    )
+    technical_issues = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label="Were there any technical issues or errors during the assessment?"
+    )
+    satisfaction = forms.ChoiceField(
+        choices=rating_scale_choices,
+        widget=forms.RadioSelect,
+        label="How would you rate the overall satisfaction with your assessment experience?"
+    )
+    challenges = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label="Did you face any challenges while using our website?"
+    )
+    assessment_quality = forms.ChoiceField(
+        choices=rating_scale_choices,
+        widget=forms.RadioSelect,
+        label="How would you rate the overall quality of the assessment?"
+    )
+    website_changes = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label="What changes would you like to see in our website?"
+    )

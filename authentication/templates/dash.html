@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Dashboard</h3>
+                </div>
+                <div class="card-body">
+                    <h4>Welcome, {{ user.username }}!</h4>
+                    <h5>Quiz Performance</h5>
+                    <canvas id="quizPerformanceChart" width="400" height="400"></canvas>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var ctx = document.getElementById('quizPerformanceChart').getContext('2d');
+                            var correctGuesses = {{ correct_guesses|safe }};
+                            var wrongGuesses = {{ wrong_guesses|safe }};
+                            
+                            var data = {
+                                labels: ['Correct Guesses', 'Wrong Guesses'],
+                                datasets: [{
+                                    data: [correctGuesses, wrongGuesses],
+                                    backgroundColor: ['#36a2eb', '#ff6384']
+                                }]
+                            };
+
+                            var options = {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            };
+
+                            new Chart(ctx, {
+                                type: 'doughnut',
+                                data: data,
+                                options: options
+                            });
+                        });
+                    </script>
+                    <a href="{% url 'coding_syntax_identification' %}" class="btn btn-primary mt-3">Play Again</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

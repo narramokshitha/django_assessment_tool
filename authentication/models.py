@@ -32,3 +32,14 @@ class CodeSnippet(models.Model):
 
     def __str__(self):
         return self.language
+
+class SurveyResponse(models.Model):
+    overall_experience = models.IntegerField()
+    technical_issues = models.TextField()
+    overall_satisfaction = models.IntegerField()
+    challenges_faced = models.TextField()
+    assessment_quality = models.IntegerField()
+    changes_request = models.TextField()
+
+    def __str__(self):
+        return f'Survey Response {self.id}'
