@@ -100,13 +100,18 @@ def submit_quiz(request):
         score = 0
         total_score = 30  # Assuming each question is worth 10 points, total score for 3 questions is 30
         question_ids = request.session.get('question_ids', [])
+        user_answers = {}
 
         for question_id in question_ids:
             selected_option_id = request.POST.get(f'question{question_id}')
             if selected_option_id:
                 selected_option = Option.objects.get(id=selected_option_id)
+                user_answers[f'question{question_id}'] = selected_option_id
                 if selected_option.is_correct:
                     score += 10
+
+        # Store user's answers in session
+        request.session['user_answers'] = user_answers
 
         # Create a new QuizAttempt instance and save to database
         quiz_attempt = QuizAttempt(user=request.user, score=score, total_questions=len(question_ids))
@@ -119,6 +124,37 @@ def submit_quiz(request):
         }
         return render(request, 'quiz_result.html', context)
     return redirect('assessments')
+
+@login_required
+def review_quiz(request):
+    if 'question_ids' in request.session and 'user_answers' in request.session:
+        question_ids = request.session['question_ids']
+        user_answers = request.session['user_answers']
+        questions = Question.objects.filter(id__in=question_ids)
+        review_data = []
+        
+        for question in questions:
+            correct_option = question.options.get(is_correct=True)
+            user_selected_option_id = user_answers.get(f'question{question.id}')
+            user_selected_option = None
+            if user_selected_option_id:
+                try:
+                    user_selected_option = Option.objects.get(id=user_selected_option_id)
+                except Option.DoesNotExist:
+                    user_selected_option = None
+            review_data.append({
+                'question': question.text,
+                'correct_answer': correct_option.text,
+                'user_answer': user_selected_option.text if user_selected_option else 'No answer selected'
+            })
+        
+        return render(request, 'review_quiz.html', {'review_data': review_data})
+    else:
+        # Clear session keys to avoid issues
+        request.session.pop('question_ids', None)
+        request.session.pop('user_answers', None)
+        return redirect('timed_quiz')
+
 
 @login_required 
 def surveys_view(request): 

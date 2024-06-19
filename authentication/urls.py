@@ -8,6 +8,7 @@ urlpatterns = [
     path('assessments/', views.assessments_view, name='assessments'), 
     path('assessments/timed-quiz/', views.timed_quiz_view, name='timed_quiz'), 
     path('submit_quiz/', views.submit_quiz, name='submit_quiz'), 
+    path('review_quiz/', views.review_quiz, name='review_quiz'),
     path('assessments/surveys/', views.surveys_view, name='surveys'), 
     path('assessments/coding-syntax-identification/', views.coding_syntax_identification_view, name='coding_syntax_identification'), 
     path('login/', views.login_view, name='login'), 
