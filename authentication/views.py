@@ -1,17 +1,18 @@
 # views.py 
+from django.db.models import Count
 from django.shortcuts import render, redirect 
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required 
 from .forms import SignupForm 
-from .models import Question, Option , QuizAttempt, CodeSnippet, SurveyResponse
+from .models import Question, Option , QuizAttempt, CodeSnippet, SurveyResponse, Attendance
 import random 
 from .forms import LoginForm , SurveyForm # Import the LoginForm you just defined
 from .utils import generate_random_string
 from django.http import JsonResponse
 from .forms import SyntaxIdentificationForm
 from django.http import HttpResponse
-
+from datetime import datetime
  
 def home(request): 
     return render(request, 'registration/home.html') 
@@ -137,7 +138,7 @@ def timed_quiz_view(request):
 def submit_quiz(request):
     if request.method == 'POST':
         score = 0
-        total_score = 30  # Assuming each question is worth 10 points, total score for 3 questions is 30
+        total_score = 30
         question_ids = request.session.get('question_ids', [])
         user_answers = {}
 
@@ -149,12 +150,13 @@ def submit_quiz(request):
                 if selected_option.is_correct:
                     score += 10
 
-        # Store user's answers in session
         request.session['user_answers'] = user_answers
 
-        # Create a new QuizAttempt instance and save to database
         quiz_attempt = QuizAttempt(user=request.user, score=score, total_questions=len(question_ids))
         quiz_attempt.save()
+
+        # Mark attendance for the day
+        Attendance.objects.create(user=request.user, attended=True)
 
         context = {
             'score': score,
@@ -227,3 +229,33 @@ def coding_syntax_identification_view(request):
         'form': form
     }
     return render(request, 'coding_syntax_identification.html', context)
+
+@login_required
+def attendance_report(request):
+    # Get the current user
+    user = request.user
+    
+    # Get the current month
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    
+    # Filter attendance records for the current month and year
+    attendance_records = Attendance.objects.filter(user=user, date__month=current_month, date__year=current_year)
+    
+    # Count total days and attended days for the current month
+    total_days = attendance_records.count()
+    attended_days = attendance_records.filter(attended=True).count()
+
+    # Calculate attendance percentage
+    if total_days > 0:
+        attendance_percentage = (attended_days / total_days) * 100
+    else:
+        attendance_percentage = 0
+    
+    context = {
+        'attendance_records': attendance_records,
+        'attendance_percentage': attendance_percentage,
+        'current_month': datetime.now().strftime("%B"),
+    }
+    
+    return render(request, 'attendance.html', context)

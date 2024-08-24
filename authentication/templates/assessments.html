@@ -8,7 +8,7 @@
         <div class="col-md-10">
             <div class="card-deck">
                 <!-- Timed Quiz Card -->
-                <div class="card mb-4 shadow">
+                <div class="card mb-4 shadow" data-toggle="tooltip" data-placement="top" title="Test your knowledge with a timed quiz.">
                     <div class="card-header bg-primary text-white">
                         <h3 class="text-center">Timed Quiz</h3>
                     </div>
@@ -22,7 +22,7 @@
                 </div>
 
                 <!-- Surveys Card -->
-                <div class="card mb-4 shadow">
+                <div class="card mb-4 shadow" data-toggle="tooltip" data-placement="top" title="Share your opinions by participating in surveys.">
                     <div class="card-header bg-primary text-white">
                         <h3 class="text-center">Surveys</h3>
                     </div>
@@ -36,7 +36,7 @@
                 </div>
 
                 <!-- Coding Syntax Identification Card -->
-                <div class="card mb-4 shadow">
+                <div class="card mb-4 shadow" data-toggle="tooltip" data-placement="top" title="Test your programming skills by identifying and correcting syntax errors.">
                     <div class="card-header bg-primary text-white">
                         <h3 class="text-center">Identify Language</h3>
                     </div>
@@ -53,7 +53,7 @@
     </div>
     <div class="row justify-content-end mt-3">
         <div class="col-md-4">
-            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-block">View Dashboard</a>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-block" data-toggle="tooltip" data-placement="top" title="View your progress and achievements.">View Dashboard</a>
         </div>
     </div>
 </div>
@@ -61,6 +61,9 @@
 <script>
     // Add JavaScript for additional functionality or animations if needed
     document.addEventListener('DOMContentLoaded', function() {
+        // Add tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+
         // Example: Add tooltips or animations on hover
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {

@@ -16,4 +16,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'), 
     path('refresh-captcha/', views.refresh_captcha, name='refresh_captcha'),
     path('survey-thank-you/', views.survey_thank_you, name='survey-thank-you'),
+    path('attendance-report/', views.attendance_report, name='attendance_report'),
 ]

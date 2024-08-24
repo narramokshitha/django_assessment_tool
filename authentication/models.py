@@ -43,3 +43,11 @@ class SurveyResponse(models.Model):
  
     def __str__(self): 
         return f'Survey Response {self.id}'
+
+class Attendance(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    attended = models.BooleanField(default=True)  # Mark whether attendance is recorded for this date
+
+    def __str__(self):
+        return f"{self.user.username} - {self.date} - {'Present' if self.attended else 'Absent'}"
