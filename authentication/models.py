@@ -51,3 +51,5 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.date} - {'Present' if self.attended else 'Absent'}"
+
+        
