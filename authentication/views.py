@@ -258,4 +258,4 @@ def attendance_report(request):
         'current_month': datetime.now().strftime("%B"),
     }
     
-    return render(request, 'attendance.html', context)
+    return render(request, 'attendance_report.html', context)
